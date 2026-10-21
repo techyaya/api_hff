@@ -3,17 +3,22 @@ from pydantic import BaseModel
 from db_service.dbservices import get_connection
 from fastapi import APIRouter
 
+
+
 router = APIRouter()
 
 class AnomalieRequest(BaseModel):
     id_recuperation: int
+
+# class AnomalieDocument(BaseModel):
+    
 
 @router.get("/majAnomalie")
 def getMajAnomalie():
     connection = None
     cursor = None
     rq = """ 
-            select d.numero_document, c.statut_dw, c.statut_intranet, c.resultat ,
+            select d.type_document, d.numero_document, c.statut_dw, c.statut_intranet, c.resultat ,
             ABS(
                 DATEDIFF(
                     MINUTE,
@@ -61,6 +66,7 @@ def getAnomalieByDate(data: AnomalieRequest):
 
     rq = """
         SELECT
+            d.type_document,
             d.numero_document,
             c.statut_dw,
             c.statut_intranet,
@@ -155,3 +161,7 @@ def AnomalieEvolution():
         if connection is None:
             connection.close()
         
+
+# @router.post("/anomalieEvolution_par_type_document")
+# def AnomlieTypeDocumentEvolution():
+#     return resultat

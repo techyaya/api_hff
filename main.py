@@ -42,27 +42,78 @@ def get_statistiques():
        
         connection = get_connection()
         cursor = connection.cursor()
-
         sql = """
-            SELECT
-                r.date_recuperation,
-                COUNT(*) AS recuperer,
-                COUNT(resultat) AS analyser,
-                SUM(CASE
-                    WHEN resultat = 'conforme' THEN 1
-                    ELSE 0
-                END) AS conforme,
-                SUM(CASE
-                    WHEN resultat = 'anomalie' THEN 1
-                    ELSE 0
-                END) AS anomalie
-            FROM controle c
-            join recuperation r on r.id_recuperation = c.id_recuperation
-            WHERE c.id_recuperation = (
-                SELECT MAX(id_recuperation)
-                FROM recuperation
-            )
-            GROUP BY r.date_recuperation
+        SELECT
+            r.date_recuperation,
+            COUNT(*) AS recuperer,
+            COUNT(resultat) AS analyser,
+            SUM(
+            CASE
+                WHEN resultat = 'conforme' THEN 1
+                ELSE 0
+            END) AS conforme,
+            SUM(
+            CASE
+                WHEN resultat = 'anomalie' THEN 1
+                ELSE 0
+            END) AS anomalie,
+            SUM(
+            CASE
+                WHEN d.type_Document = 'DEMANDE D''INTERVENTION' THEN 1
+                ELSE 0
+            END) AS nb_dit,
+            SUM(CASE 
+                WHEN d.type_Document = 'DEMANDE D''INTERVENTION' AND c.resultat = 'conforme' 
+                THEN 1
+                ELSE 0
+            END) AS nb_dit_conforme,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'DEMANDE D''INTERVENTION' AND c.resultat = 'anomalie' 
+                THEN 1
+                ELSE 0
+            END) AS nb_dit_anomalie,
+            SUM(
+            CASE
+                WHEN d.type_Document = 'DEVIS ATELIER' THEN 1
+                ELSE 0
+            END) AS nb_devis,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'DEVIS ATELIER' AND c.resultat = 'conforme' 
+                THEN 1
+                ELSE 0
+            END) as nb_devis_conforme ,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'DEVIS ATELIER' AND c.resultat = 'anomalie' 
+                THEN 1
+                ELSE 0
+            END) as nb_devis_anomalie ,
+            SUM(CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' THEN 1
+                ELSE 0
+            END) AS nb_verification_prix_magasin,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' AND c.resultat = 'conforme' 
+                THEN 1
+                ELSE 0
+            END) AS nb_verification_prix_magasin_conforme,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' AND c.resultat = 'anomalie' 
+                THEN 1
+                ELSE 0
+            END) AS nb_verification_prix_magasin_anomalie
+        FROM controle c 
+        join recuperation r on r.id_recuperation = c.id_recuperation
+        join document d on d.id_document = c.id_document
+        WHERE c.id_recuperation = (
+            SELECT MAX(id_recuperation)
+            FROM recuperation
+        )
+        GROUP BY r.date_recuperation
         """
 
         cursor.execute(sql)
@@ -73,14 +124,38 @@ def get_statistiques():
             return None
 
         # Conversion en dictionnaire
-
-        statistiques = {
-            "date_recuperation": row[0],
+        statistiques = [
+            {
+            
+            },
+            {   
             "recuperer": row[1],
+            "type_document":'global',
             "analyser": row[2],
-            "conforme": row[3] or 0,
-            "anomalie": row[4] or 0
-        }
+            "conforme": row[3],
+            "anomalie": row[4]
+            },
+            {
+            "type_document": "dit",
+            "recuperer": row[5],
+            "analyser": row[5],
+            "conforme": row[6],
+            "anomalie": row[7],
+            },
+            {
+            "type_document": "devis",
+            "recuperer":row[8],
+            "analyser": row[8],
+            "conforme": row[9],
+            "anomalie": row[10],
+            },
+            {
+            "type_document":"verification prix",
+            "recuperer":row[11],
+            "analyser": row[11],
+            "conforme": row[12],
+            "anomalie": row[13],
+            }]
 
         return statistiques
 
@@ -110,6 +185,7 @@ def getDerniersControles():
 
     sql = """
         SELECT
+            d.type_document,
             d.numero_document,
             c.statut_dw,
             c.statut_intranet,
@@ -171,3 +247,26 @@ def getDerniersControles():
             connection.close()
 
 
+
+
+#  sql = """
+#             SELECT
+#                 r.date_recuperation,
+#                 COUNT(*) AS recuperer,
+#                 COUNT(resultat) AS analyser,
+#                 SUM(CASE
+#                     WHEN resultat = 'conforme' THEN 1
+#                     ELSE 0
+#                 END) AS conforme,
+#                 SUM(CASE
+#                     WHEN resultat = 'anomalie' THEN 1
+#                     ELSE 0
+#                 END) AS anomalie
+#             FROM controle c
+#             join recuperation r on r.id_recuperation = c.id_recuperation
+#             WHERE c.id_recuperation = (
+#                 SELECT MAX(id_recuperation)
+#                 FROM recuperation
+#             )
+#             GROUP BY r.date_recuperation
+#         """

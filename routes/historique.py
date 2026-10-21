@@ -79,7 +79,7 @@ def get_historique_By_id(data: historiqueRequest):
     #requete à corriger  
 
     sql = """ 
-        select d.numero_document, c.statut_dw, c.statut_intranet, c.resultat ,
+        select d.type_document,d.numero_document, c.statut_dw, c.statut_intranet, c.resultat ,
         ABS(
             DATEDIFF(
                 MINUTE,
