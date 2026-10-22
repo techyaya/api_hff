@@ -10,7 +10,8 @@ router = APIRouter()
 class AnomalieRequest(BaseModel):
     id_recuperation: int
 
-# class AnomalieDocument(BaseModel):
+class AnomalieDocument(BaseModel):
+    type_document : str
     
 
 @router.get("/majAnomalie")
@@ -161,6 +162,65 @@ def AnomalieEvolution():
         if connection is None:
             connection.close()
         
+
+
+@router.post("/PostAnomalieEvolutionByTypeDocument")
+def AnomalieEvolutonByType(data : AnomalieDocument):
+    
+    connection = None
+    cursor = None
+
+    rq = """ 
+        SELECT
+            COUNT(*) AS anomalie_count,
+            r.id_recuperation,
+            r.date_recuperation,
+            d.type_document
+        FROM controle c
+        JOIN recuperation r
+            ON r.id_recuperation = c.id_recuperation
+        JOIN document d
+            ON d.id_document = c.id_document
+        WHERE
+            c.resultat = 'anomalie' 
+            AND d.type_Document = ?
+            AND r.date_recuperation > DATEADD(DAY, -8, GETDATE())
+        GROUP BY
+            r.id_recuperation,
+            r.date_recuperation,
+            d.type_document
+        ORDER BY
+            r.date_recuperation ASC
+        """
+    
+    try:
+            connection = get_connection()
+            cursor = connection.cursor()
+    
+            cursor.execute(rq,(data.type_document))
+    
+            rows = cursor.fetchall()
+    
+            colonnes = [ colonne[0] for colonne in cursor.description]
+    
+            resultat = [ dict(zip(colonnes,row)) for row in rows]
+    
+            return resultat
+    
+    except pyodbc.Error as e:
+        print("erreur anomalie evolution ", e)
+
+    except Exception as e:
+        print("erreur excepiton anomalie evolution ", e)
+
+    finally:
+        if cursor is None:
+            cursor.close()
+        if connection is None:
+            connection.close()
+    
+
+
 
 # @router.post("/anomalieEvolution_par_type_document")
 # def AnomlieTypeDocumentEvolution():

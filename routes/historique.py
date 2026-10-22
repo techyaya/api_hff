@@ -37,7 +37,7 @@ def getHistoriqueControle():
             ON r.id_recuperation = c.id_recuperation
         GROUP BY
             r.date_recuperation,r.id_recuperation
-        order by r.date_recuperation
+        order by r.date_recuperation desc
         """
     try:
         connection = get_connection()

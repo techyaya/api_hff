@@ -126,7 +126,7 @@ def get_statistiques():
         # Conversion en dictionnaire
         statistiques = [
             {
-            
+            "date_recuperation": row[0]
             },
             {   
             "recuperer": row[1],
