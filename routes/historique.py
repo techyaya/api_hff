@@ -14,30 +14,100 @@ class historiqueRequest(BaseModel):
 def getHistoriqueControle():
     connection = None
     cursor = None
-    sql = """ 
+    sql = """        
         SELECT
-            r.id_recuperation,
-            r.date_recuperation,
-            COUNT(*) AS recuperer,
-            COUNT(c.resultat) AS analyser,
-            SUM(
-                CASE
-                    WHEN c.resultat = 'conforme' THEN 1
+        r.id_recuperation,
+        r.date_recuperation,
+        COUNT(*) AS recuperer,
+        COUNT(c.resultat) AS analyser,
+        SUM(
+            CASE
+                WHEN c.resultat = 'conforme' THEN 1
+                ELSE 0
+            END
+        ) AS conforme,
+        SUM(
+            CASE
+                WHEN c.resultat = 'anomalie' THEN 1
                     ELSE 0
                 END
-            ) AS conforme,
-            SUM(
-                CASE
-                    WHEN c.resultat = 'anomalie' THEN 1
-                    ELSE 0
-                END
-            ) AS anomalie
+            ) AS anomalie , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEMANDE D''INTERVENTION' 
+                THEN 1
+                ELSE 0
+            END	
+        ) AS dit_analyser , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEMANDE D''INTERVENTION' 
+                AND c.resultat = 'conforme'
+                THEN 1
+                ELSE 0
+            END	
+        ) AS dit_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEMANDE D''INTERVENTION' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) dit_anomalie ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEVIS ATELIER' 
+                THEN 1
+                ELSE 0
+            END	
+        ) devis_analyser , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEVIS ATELIER' 
+                AND c.resultat = 'conforme'  
+                THEN 1
+                ELSE 0
+            END	
+        ) devis_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEVIS ATELIER' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) devis_anomalie , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' 
+                THEN 1
+                ELSE 0
+            END	
+        ) AS verif_analyser ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' 
+                AND c.resultat = 'conforme'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS verif_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS verif_anomalie 
         FROM controle c
-        JOIN recuperation r
-            ON r.id_recuperation = c.id_recuperation
+        JOIN recuperation r ON r.id_recuperation = c.id_recuperation
+        JOIN document d ON d.id_document = c. id_document 
         GROUP BY
             r.date_recuperation,r.id_recuperation
         order by r.date_recuperation desc
+                
         """
     try:
         connection = get_connection()
