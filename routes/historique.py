@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from db_service.dbservices import get_connection
+from service.db_services import get_connection
 import pyodbc
 
 router = APIRouter()
@@ -80,14 +80,14 @@ def getHistoriqueControle():
         ) devis_anomalie , 
         SUM(
             CASE 
-                WHEN d.type_Document = 'Vérification prix devis magasin' 
+                WHEN d.type_Document = 'Vérification prix devis' 
                 THEN 1
                 ELSE 0
             END	
         ) AS verif_analyser ,
         SUM(
             CASE 
-                WHEN d.type_Document = 'Vérification prix devis magasin' 
+                WHEN d.type_Document = 'Vérification prix devis' 
                 AND c.resultat = 'conforme'  
                 THEN 1
                 ELSE 0
@@ -95,12 +95,35 @@ def getHistoriqueControle():
         ) AS verif_conforme , 
         SUM(
             CASE 
-                WHEN d.type_Document = 'Vérification prix devis magasin' 
+                WHEN d.type_Document = 'Vérification prix devis' 
                 AND c.resultat = 'anomalie'  
                 THEN 1
                 ELSE 0
             END	
-        ) AS verif_anomalie 
+        ) AS verif_anomalie ,
+         SUM(
+            CASE 
+                WHEN d.type_Document = 'Ordre de réparation' 
+                THEN 1
+                ELSE 0
+            END	
+        ) AS OR_analyser ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Ordre de réparation' 
+                AND c.resultat = 'conforme'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS OR_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Ordre de réparation' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS OR_anomalie 
         FROM controle c
         JOIN recuperation r ON r.id_recuperation = c.id_recuperation
         JOIN document d ON d.id_document = c. id_document 
@@ -149,7 +172,7 @@ def get_historique_By_id(data: historiqueRequest):
     #requete à corriger  
 
     sql = """ 
-        select d.type_document,d.numero_document, c.statut_dw, c.statut_intranet, c.resultat ,
+        select d.type_document,d.numero_document,d.numero_version, c.statut_dw, c.statut_intranet, c.resultat ,
         ABS(
             DATEDIFF(
                 MINUTE,

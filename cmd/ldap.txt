@@ -1,0 +1,9 @@
+whoami : qui est l'utilisateur 
+echo %USERDOMAIN%  : affiche le nom du domaine de l'entreprise 
+echo %LOGONSERVER% : affige le nom du serveur qui permet d'acceder à l'annulaire LDAP via le réseaux 
+ping LOGONSERVER : test la connection 
+
+powershell 
+affiche la connection entre les 2 port de LOGONSERVER : 
+	Test-NetConnection %LOGONSERVER% -port 389 / 636
+		636 (TLS)

@@ -1,6 +1,6 @@
 import pyodbc 
 from pydantic import BaseModel
-from db_service.dbservices import get_connection
+from service.db_services import get_connection
 from fastapi import APIRouter
 
 
@@ -19,14 +19,13 @@ def getMajAnomalie():
     connection = None
     cursor = None
     rq = """ 
-            select d.type_document, d.numero_document, c.statut_dw, c.statut_intranet, c.resultat ,
+            select d.type_document, d.numero_document,d.numero_version, c.statut_dw, c.statut_intranet, c.resultat ,
             ABS(
                 DATEDIFF(
                     MINUTE,
+                    GETDATE(),
                     CAST(c.jour_dernier_maj_dw AS DATETIME)
-                        + CAST(c.heur_dernier_maj AS DATETIME),
-                    CAST(c.jour_dernier_maj_intranet AS DATETIME)
-                        + CAST(c.heur_dernier_maj_intranet AS DATETIME)
+                        + CAST(c.heur_dernier_maj AS DATETIME)
                 )
             ) AS ecart
             from controle c 
@@ -69,6 +68,7 @@ def getAnomalieByDate(data: AnomalieRequest):
         SELECT
             d.type_document,
             d.numero_document,
+            d.numero_version,
             c.statut_dw,
             c.statut_intranet,
             c.resultat,
@@ -77,8 +77,7 @@ def getAnomalieByDate(data: AnomalieRequest):
                     MINUTE,
                     CAST(c.jour_dernier_maj_dw AS DATETIME)
                         + CAST(c.heur_dernier_maj AS DATETIME),
-                    CAST(c.jour_dernier_maj_intranet AS DATETIME)
-                        + CAST(c.heur_dernier_maj_intranet AS DATETIME)
+                   GETDATE()
                 )
             ) AS ecart
         FROM controle c

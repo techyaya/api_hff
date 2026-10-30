@@ -1,6 +1,6 @@
 
 import pyodbc
-from db_service.dbservices import get_connection
+from service.db_services import get_connection
 from fastapi import APIRouter
 from pydantic import BaseModel 
 router = APIRouter()
@@ -90,7 +90,8 @@ def detailDocument(data : detailRequest):
     cursor = None
 
     rq = """
-    select r.date_recuperation, r.id_recuperation , d.numero_document ,c.statut_DW, c.statut_intranet , c.resultat
+    select r.date_recuperation, r.id_recuperation , d.numero_document ,c.statut_DW, c.statut_intranet , c.resultat,
+    ABS(DATEDIFF(MINUTE,GETDATE(),CAST(c.jour_dernier_maj_dw AS DATETIME) + CAST(c.heur_dernier_maj AS DATETIME))) as ecart
     from controle c
     join recuperation r on r.id_recuperation = c.id_recuperation
     join document d on d.id_document = c.id_document
@@ -113,7 +114,7 @@ def detailDocument(data : detailRequest):
             dict(zip(colonnes,row)) for row in rows
         ]
 
-        print(resultat)
+        # print(resultat)
 
         return resultat
 
