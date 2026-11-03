@@ -14,7 +14,7 @@ def list_document():
     connection = None
     cursor = None
     rq = """        
-        select DISTINCT (d.numero_document) from controle c
+        select DISTINCT d.numero_document , d.numero_version from controle c
         join document d on d.id_document = c.id_document
     """
     try:
@@ -83,20 +83,20 @@ def Search_document(data : detailRequest):
 
 
 @router.post("/detailDocument")
-def detailDocument(data : detailRequest):
+def detailDocument(data : detailRequest):  # ajout de numero version normalement
     print("detailDocument executé",data.numero_document)
    
     connection = None
     cursor = None
 
     rq = """
-    select r.date_recuperation, r.id_recuperation , d.numero_document ,c.statut_DW, c.statut_intranet , c.resultat,
+    select r.date_recuperation, r.id_recuperation , d.numero_document ,c.statut_DW, c.statut_intranet , c.resultat, d.numero_version,
     ABS(DATEDIFF(MINUTE,GETDATE(),CAST(c.jour_dernier_maj_dw AS DATETIME) + CAST(c.heur_dernier_maj AS DATETIME))) as ecart
     from controle c
     join recuperation r on r.id_recuperation = c.id_recuperation
     join document d on d.id_document = c.id_document
     where d.numero_document = ?
-    order by r.date_recuperation
+    order by r.date_recuperation desc
     """
 
     try:

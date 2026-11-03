@@ -18,19 +18,20 @@ def analyse():
     WITH doc_classer as (
     select r.date_recuperation,
     r.id_recuperation,
+    d.type_document,
     d.numero_document,
-    c.statut_DW, c.statut_intranet ,
+    c.statut_DW, 
+    c.statut_intranet ,
     c.resultat ,ABS(DATEDIFF(MINUTE,GETDATE(),CAST(c.jour_dernier_maj_dw AS DATETIME) + CAST(c.heur_dernier_maj AS DATETIME))) as ecart,
     ROW_NUMBER() OVER(
         PARTITION BY d.numero_document 
-        ORDER BY r.id_recuperation DESC
+        ORDER BY r.id_recuperation DESC 
     ) as classement
     from controle c
     join recuperation r on r.id_recuperation = c.id_recuperation
     join document d on d.id_document = c.id_document
-    where ABS(DATEDIFF(MINUTE,GETDATE(),CAST(c.jour_dernier_maj_dw AS DATETIME) + CAST(c.heur_dernier_maj AS DATETIME))) >= 30 and c.resultat = 'anomalie'
     )
-    SELECT * from doc_classer where classement = 1;
+    SELECT * from doc_classer where classement = 1 and resultat = 'anomalie' and  ecart >= 30
     """
     
     try:

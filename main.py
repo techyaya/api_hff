@@ -135,6 +135,22 @@ def get_statistiques():
                 WHEN d.type_Document = 'ordre de réparation' AND c.resultat = 'anomalie' 
                 THEN 1
                 ELSE 0
+            END) AS nb_OR_anomalie,
+            SUM(CASE 
+                WHEN d.type_Document = 'BADM' THEN 1
+                ELSE 0
+            END) AS nb_OR,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'BADM' AND c.resultat = 'conforme' 
+                THEN 1
+                ELSE 0
+            END) AS nb_OR_conforme,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'BADM' AND c.resultat = 'anomalie' 
+                THEN 1
+                ELSE 0
             END) AS nb_OR_anomalie
         FROM controle c 
         join recuperation r on r.id_recuperation = c.id_recuperation
@@ -192,6 +208,13 @@ def get_statistiques():
             "analyser": row[14],
             "conforme": row[15],
             "anomalie": row[16],
+            },
+            {
+            "type_document":"BADM",
+            "recuperer":row[17],
+            "analyser": row[17],
+            "conforme": row[18],
+            "anomalie": row[19]
             }]
 
         return statistiques
@@ -211,6 +234,51 @@ def get_statistiques():
 
         if connection is not None:
             connection.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # @app.get("/consultation")
 # def getDerniersControles():

@@ -14,10 +14,7 @@ url = "http://127.0.0.1:8000/analyse"
 
 def structureEmail():
     
-    response = requests.get(
-        url,
-        params={"numero_document": "DIT001"}
-    )
+    response = requests.get(url)
 
     table_data = response.json()
 
@@ -27,10 +24,11 @@ def structureEmail():
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
             <tr>
+                <th>Type de document</th>
                 <th>Numéro document</th>
                 <th>Statut DocuWare</th>
                 <th>Statut Intranet</th>
-                <th>Ecart de temp</th>
+                <th>Ecart de temps</th>
                 <th>Résultat</th>
             </tr>
         </thead>
@@ -39,6 +37,7 @@ def structureEmail():
     for info in table_data:
         html += f"""
             <tr>
+                <td>{info["type_document"]}</td>
                 <td>{info["numero_document"]}</td>
                 <td>{info["statut_DW"]}</td>
                 <td>{info["statut_intranet"]}</td>
@@ -80,7 +79,8 @@ def SendEmail():
             print("TLS OK")
             print(os.getenv("expediteur"))
             print(os.getenv("mdp"))
-            smtp.login(os.getenv("expediteur"),"kiiu zlhy ddeb ufvx")
+
+            smtp.login(os.getenv("expediteur"), os.getenv("mdp"))
             print("authentification ok")
     
             smtp.send_message(msg)
