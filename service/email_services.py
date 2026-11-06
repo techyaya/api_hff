@@ -12,8 +12,28 @@ url = "http://127.0.0.1:8000/analyse"
 
 
 
-def structureEmail():
+def ConvertionEcart(minutes):
     
+        if minutes < 60 :
+            return f"{minutes} min"
+        
+        heures = minutes / 60
+        if heures < 24 :
+            return f"{heures.toFixed(1)} h"
+        
+        jours = round(heures / 24, 2)
+        if  jours < 7 :
+            return f"{jours} jours"
+        
+        semaines = round(jours / 7,2 )
+        if semaines < 4: 
+            return f"{semaines} semaines"
+
+        mois = round(jours / 30 , 2)
+        return f"{mois} mois"
+
+def structureEmail():
+
     response = requests.get(url)
 
     table_data = response.json()
@@ -41,7 +61,7 @@ def structureEmail():
                 <td>{info["numero_document"]}</td>
                 <td>{info["statut_DW"]}</td>
                 <td>{info["statut_intranet"]}</td>
-                <td>{info["ecart"]}</td>
+                <td>{ConvertionEcart(info["ecart"])}</td>
                 <td>{info["resultat"]}</td>
             </tr>
         """

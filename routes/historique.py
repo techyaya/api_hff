@@ -101,7 +101,7 @@ def getHistoriqueControle():
                 ELSE 0
             END	
         ) AS verif_anomalie ,
-         SUM(
+        SUM(
             CASE 
                 WHEN d.type_Document = 'Ordre de réparation' 
                 THEN 1
@@ -123,8 +123,54 @@ def getHistoriqueControle():
                 THEN 1
                 ELSE 0
             END	
-        ) AS OR_anomalie 
-        FROM controle c
+        ) AS OR_anomalie ,
+        SUM(
+        CASE 
+            WHEN d.type_Document = 'BADM' 
+            THEN 1
+            ELSE 0
+            END	
+        ) AS BADM_analyser ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'BADM' 
+                AND c.resultat = 'conforme'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS BADM_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'BADM' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS BADM_anomalie , 
+        SUM(
+        CASE 
+            WHEN d.type_Document = 'DEMANDE D''ACHAT' 
+            THEN 1
+            ELSE 0
+            END	
+        ) AS demande_achat_analyser ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEMANDE D''ACHAT' 
+                AND c.resultat = 'conforme'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS demande_achat_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEMANDE D''ACHAT' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS demande_achat_anomalie 
+        FROM controle c 
         JOIN recuperation r ON r.id_recuperation = c.id_recuperation
         JOIN document d ON d.id_document = c. id_document 
         GROUP BY
@@ -178,8 +224,7 @@ def get_historique_By_id(data: historiqueRequest):
                 MINUTE,
                 CAST(c.jour_dernier_maj_dw AS DATETIME)
                     + CAST(c.heur_dernier_maj AS DATETIME),
-                CAST(c.jour_dernier_maj_intranet AS DATETIME)
-                    + CAST(c.heur_dernier_maj_intranet AS DATETIME)
+                GETDATE()
             )
         ) AS ecart
         from controle c 

@@ -61,6 +61,7 @@ def getMajAnomalie():
 def getAnomalieByDate(data: AnomalieRequest):
 
     print(data.id_recuperation)
+   
     connection = None
     cursor = None
 
@@ -75,9 +76,8 @@ def getAnomalieByDate(data: AnomalieRequest):
             ABS(
                 DATEDIFF(
                     MINUTE,
-                    CAST(c.jour_dernier_maj_dw AS DATETIME)
-                        + CAST(c.heur_dernier_maj AS DATETIME),
-                   GETDATE()
+                    CAST(c.jour_dernier_maj_dw AS DATETIME) + CAST(c.heur_dernier_maj AS DATETIME),
+                    GETDATE()
                 )
             ) AS ecart
         FROM controle c
@@ -103,6 +103,8 @@ def getAnomalieByDate(data: AnomalieRequest):
             dict(zip(colonnes, row))
             for row in rows
         ]
+
+    
 
         return resultat
 
@@ -193,18 +195,18 @@ def AnomalieEvolutonByType(data : AnomalieDocument):
         """
     
     try:
-            connection = get_connection()
-            cursor = connection.cursor()
-    
-            cursor.execute(rq,(data.type_document))
-    
-            rows = cursor.fetchall()
-    
-            colonnes = [ colonne[0] for colonne in cursor.description]
-    
-            resultat = [ dict(zip(colonnes,row)) for row in rows]
-    
-            return resultat
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(rq,(data.type_document))
+
+        rows = cursor.fetchall()
+
+        colonnes = [ colonne[0] for colonne in cursor.description]
+
+        resultat = [ dict(zip(colonnes,row)) for row in rows]
+
+        return resultat
     
     except pyodbc.Error as e:
         print("erreur anomalie evolution ", e)

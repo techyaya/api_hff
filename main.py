@@ -139,19 +139,35 @@ def get_statistiques():
             SUM(CASE 
                 WHEN d.type_Document = 'BADM' THEN 1
                 ELSE 0
-            END) AS nb_OR,
+            END) AS nb_BADM,
             SUM(
             CASE 
                 WHEN d.type_Document = 'BADM' AND c.resultat = 'conforme' 
                 THEN 1
                 ELSE 0
-            END) AS nb_OR_conforme,
+            END) AS nb_BADM_conforme,
             SUM(
             CASE 
                 WHEN d.type_Document = 'BADM' AND c.resultat = 'anomalie' 
                 THEN 1
                 ELSE 0
-            END) AS nb_OR_anomalie
+            END) AS nb_BADM_anomlie, 
+            SUM(CASE 
+                WHEN d.type_Document = 'DEMANDE D''ACHAT' THEN 1
+                ELSE 0
+            END) AS nb_demande_achat,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'DEMANDE D''ACHAT' AND c.resultat = 'conforme' 
+                THEN 1
+                ELSE 0
+            END) AS nb_demande_achat_conforme,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'DEMANDE D''ACHAT' AND c.resultat = 'anomalie' 
+                THEN 1
+                ELSE 0
+            END) AS nb_demande_achat_anomalie
         FROM controle c 
         join recuperation r on r.id_recuperation = c.id_recuperation
         join document d on d.id_document = c.id_document
@@ -215,6 +231,13 @@ def get_statistiques():
             "analyser": row[17],
             "conforme": row[18],
             "anomalie": row[19]
+            }, 
+            {
+            "type_document":"Demande d'achat",
+            "recuperer":row[20],
+            "analyser": row[20],
+            "conforme": row[21],
+            "anomalie": row[22]
             }]
 
         return statistiques
