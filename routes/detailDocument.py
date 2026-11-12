@@ -106,7 +106,7 @@ def detailDocument(data : detailRequest):  # ajout de numero version normalement
         cursor.execute(rq,(data.numero_document))
 
         rows = cursor.fetchall()
-        print(rows)
+        # print(rows)
 
         colonnes = [colonne[0] for colonne in cursor.description]
 

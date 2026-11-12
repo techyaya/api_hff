@@ -14,14 +14,14 @@ def demarrer_scheduler():
         SendEmail,
         trigger="cron",
         hour=9,
-        minute=14
+        minute=50
     )
 
     scheduler.add_job(
-        generer_excel_historique,
+        SendEmail,
         trigger="cron",
-        hour=15,
-        minute=37
+        hour=17,
+        minute=21
     )
     scheduler.start()
 

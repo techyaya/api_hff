@@ -19,7 +19,7 @@ def ConvertionEcart(minutes):
         
         heures = minutes / 60
         if heures < 24 :
-            return f"{heures.toFixed(1)} h"
+            return f"{round(heures,2)} h"
         
         jours = round(heures / 24, 2)
         if  jours < 7 :
@@ -73,40 +73,86 @@ def structureEmail():
 
     return html
 
-def SendEmail():
-    print("envoie d'email en cours ")
+# def SendEmail(destinataire=None):
+#     print("envoie d'email en cours ")
+#     html = structureEmail()
+
+#     msg = EmailMessage()
+#     msg["FROM"] = os.getenv("expediteur")
+#     if destinataire is None :
+#         msg["To"] = os.getenv("destinataire")
+#     else:
+#         msg["To"] = ", ".join(destinataire)
+    
+#     msg["Subject"] = "analyse des anomalie hff"
+#     msg.set_content(f"Document non mis à jour le {datetime.now()}")
+#     msg.add_alternative(html,subtype="html")
+
+#     try:
+#         with smtplib.SMTP(
+#             "smtp.gmail.com", 587, timeout=20
+#         ) as smtp:
+#             #smtp.set_debuglevel(1)
+
+#             # smtp.ehlo()
+#             smtp.starttls(context=ssl.create_default_context())
+#             # smtp.ehlo()
+
+#             print("TLS OK")
+#             print(os.getenv("expediteur"))
+#             print(os.getenv("mdp"))
+
+#             if destinataire is None:
+#                 smtp.login(os.getenv("expediteur"), os.getenv("mdp"))
+#                 smtp.send_message(msg)
+#             else:
+#                 smtp.login(os.getenv("expediteur"), os.getenv("mdp"))
+#                 smtp.send_message(msg, to_addrs=destinataire)
+                
+#             print("authentification ok")
+    
+            
+#             print("Email envoyé avec succès !")
+
+#     except (smtplib.SMTPException, OSError) as e:
+#         print("Erreur :", type(e).__name__, repr(e))
+
+
+
+def SendEmail(destinataire=None):
+    print("Envoi d'email en cours")
+
     html = structureEmail()
 
     msg = EmailMessage()
-    msg["FROM"] = os.getenv("expediteur")
-    msg["To"] = os.getenv("destinataire")
-    msg["Subject"] = "analyse des anomalie hff"
+    msg["From"] = os.getenv("expediteur")
+
+    if destinataire is None:
+        destinataire = [os.getenv("destinataire")]
+    elif isinstance(destinataire, str):
+        destinataire = [destinataire]
+
+    msg["To"] = ", ".join(destinataire)
+    msg["Subject"] = "Analyse des anomalies HFF"
+
     msg.set_content(f"Document non mis à jour le {datetime.now()}")
-    msg.add_alternative(html,subtype="html")
-
-
+    msg.add_alternative(html, subtype="html")
 
     try:
-        with smtplib.SMTP(
-            "smtp.gmail.com", 587, timeout=20
-        ) as smtp:
-            #smtp.set_debuglevel(1)
-
-            # smtp.ehlo()
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as smtp:
             smtp.starttls(context=ssl.create_default_context())
-            # smtp.ehlo()
-
             print("TLS OK")
-            print(os.getenv("expediteur"))
-            print(os.getenv("mdp"))
 
             smtp.login(os.getenv("expediteur"), os.getenv("mdp"))
-            print("authentification ok")
-    
-            smtp.send_message(msg)
+            print("Authentification OK")
+
+            smtp.send_message(msg, to_addrs=destinataire)
+
             print("Email envoyé avec succès !")
+          
+
+           
 
     except (smtplib.SMTPException, OSError) as e:
         print("Erreur :", type(e).__name__, repr(e))
-
-
+        raise

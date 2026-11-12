@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from service.db_services import get_connection
+from service.excel_services import generer_excel_historique
 import pyodbc
 
 router = APIRouter()
@@ -169,7 +170,30 @@ def getHistoriqueControle():
                 THEN 1
                 ELSE 0
             END	
-        ) AS demande_achat_anomalie 
+        ) AS demande_achat_anomalie ,
+        SUM(
+        CASE 
+            WHEN d.type_Document = 'Ordre de mission' 
+            THEN 1
+            ELSE 0
+            END	
+        ) AS Ordre_mission_analyser ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Ordre de mission' 
+                AND c.resultat = 'conforme'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS Ordre_mission_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Ordre de mission' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS Ordre_mission_anomalie 
         FROM controle c 
         JOIN recuperation r ON r.id_recuperation = c.id_recuperation
         JOIN document d ON d.id_document = c. id_document 
@@ -205,6 +229,7 @@ def getHistoriqueControle():
             cursor.close()
         if connection is not None:
             connection.close()
+
 
 
 
@@ -256,3 +281,10 @@ def get_historique_By_id(data: historiqueRequest):
         print("erreur historique by date ", e)
 
     return {"message ": data.id_recuperation }
+
+
+@router.get("/exporter_excel")
+def exporter_excel():
+    historique = getHistoriqueControle()
+    generer_excel_historique(historique)
+    return {"message": "telechargement avec success , le fichier se trouve dans le dossier de telechargement"}

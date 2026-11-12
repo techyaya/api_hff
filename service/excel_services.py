@@ -1,5 +1,5 @@
 
-from routes.historique import getHistoriqueControle
+# from routes.historique import getHistoriqueControle
 
 import os
 from datetime import datetime
@@ -13,9 +13,9 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 
 
-def generer_excel_historique():
+def generer_excel_historique(resultats):
 
-    resultats = getHistoriqueControle()
+    # resultats = getHistoriqueControle()
 
     if not resultats:
         print("Aucune donnée à exporter")
@@ -37,7 +37,8 @@ def generer_excel_historique():
         ("VÉRIFICATION PRIX DEVIS", 3, "FFF2CC"),
         ("ORDRE DE RÉPARATION", 3, "E4DFEC"),
         ("BADM", 3, "DDEBF7"),
-        ("DEMANDE D'ACHAT", 3, "F4CCCC")
+        ("DEMANDE D'ACHAT", 3, "F4CCCC"),
+        ("ORDRE DE MISSION", 3, "C9DAF8")
     ]
 
     # Création des titres regroupés à partir de la colonne B
