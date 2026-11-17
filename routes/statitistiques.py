@@ -140,7 +140,55 @@ def get_statistiques():
                 WHEN d.type_Document = 'Ordre de mission' AND c.resultat = 'anomalie' 
                 THEN 1
                 ELSE 0
-            END) AS nb_Ordre_mission_anomalie
+            END) AS nb_Ordre_mission_anomalie,
+            SUM(CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' THEN 1
+                ELSE 0
+            END) AS nb_Verif_prix,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' AND c.resultat = 'conforme' 
+                THEN 1
+                ELSE 0
+            END) AS nb_Verif_prix_conforme,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' AND c.resultat = 'anomalie' 
+                THEN 1
+                ELSE 0
+            END) AS nb_Verif_prix_anomalie,
+            SUM(CASE 
+                WHEN d.type_Document = 'DEVIS MAGASIN' THEN 1
+                ELSE 0
+            END) AS nb_devis_magasin,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'DEVIS MAGASIN' AND c.resultat = 'conforme' 
+                THEN 1
+                ELSE 0
+            END) AS nb_devis_magasin_conforme,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'DEVIS MAGASIN' AND c.resultat = 'anomalie' 
+                THEN 1
+                ELSE 0
+            END) AS nb_Verif_prix_anomalie,
+            SUM(CASE 
+                WHEN d.type_Document = 'BC client magasin' THEN 1
+                ELSE 0
+            END) AS nb_bc_client_magasin,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'BC client magasin' AND c.resultat = 'conforme' 
+                THEN 1
+                ELSE 0
+            END) AS nb_bc_client_conforme,
+            SUM(
+            CASE 
+                WHEN d.type_Document = 'BC client magasin' AND c.resultat = 'anomalie' 
+                THEN 1
+                ELSE 0
+            END) AS nb_bc_client_anomalie
         FROM controle c 
         join recuperation r on r.id_recuperation = c.id_recuperation
         join document d on d.id_document = c.id_document
@@ -217,6 +265,27 @@ def get_statistiques():
             "analyser": row[23],
             "conforme": row[24],
             "anomalie": row[25]
+            },
+            {
+            "type_document":"Vérification prix magasin",
+            "recuperer":row[26],
+            "analyser": row[26],
+            "conforme": row[27],
+            "anomalie": row[28]
+            },
+            {
+            "type_document":"DEVIS MAGASIN",
+            "recuperer":row[29],
+            "analyser": row[29],
+            "conforme": row[30],
+            "anomalie": row[31]
+            }, 
+            {
+            "type_document":"BC client magasin",
+            "recuperer":row[32],
+            "analyser": row[32],
+            "conforme": row[33],
+            "anomalie": row[34]
             }]
 
         return statistiques

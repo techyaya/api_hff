@@ -3,6 +3,9 @@ from pydantic import BaseModel
 from service.db_services import get_connection
 from service.excel_services import generer_excel_historique
 import pyodbc
+from datetime import datetime
+from fastapi.responses import StreamingResponse
+from fastapi import HTTPException
 
 router = APIRouter()
 
@@ -231,10 +234,6 @@ def getHistoriqueControle():
             connection.close()
 
 
-
-
-
-
 @router.post("/historiqueByID")
 def get_historique_By_id(data: historiqueRequest):
     print(data.id_recuperation)
@@ -286,5 +285,15 @@ def get_historique_By_id(data: historiqueRequest):
 @router.get("/exporter_excel")
 def exporter_excel():
     historique = getHistoriqueControle()
-    generer_excel_historique(historique)
-    return {"message": "telechargement avec success , le fichier se trouve dans le dossier de telechargement"}
+    fichier = generer_excel_historique(historique)
+    if fichier is None:
+        raise HTTPException(status_code=404, detail="Aucune donnée")
+
+    nom_fichier = f"historique_{datetime.now():%Y%m%d_%H%M%S}.xlsx"
+    
+    return StreamingResponse(
+        fichier,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": f'attachment; filename="{nom_fichier}"'
+        })

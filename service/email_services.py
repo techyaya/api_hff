@@ -12,25 +12,59 @@ url = "http://127.0.0.1:8000/analyse"
 
 
 
-def ConvertionEcart(minutes):
-    
-        if minutes < 60 :
-            return f"{minutes} min"
-        
-        heures = minutes / 60
-        if heures < 24 :
-            return f"{round(heures,2)} h"
-        
-        jours = round(heures / 24, 2)
-        if  jours < 7 :
-            return f"{jours} jours"
-        
-        semaines = round(jours / 7,2 )
-        if semaines < 4: 
-            return f"{semaines} semaines"
 
-        mois = round(jours / 30 , 2)
-        return f"{mois} mois"
+# def ConvertionEcart(minutes):
+    
+#         if minutes < 60 :
+#             return f"{minutes} min"
+        
+#         heures = minutes / 60
+#         if heures < 24 :
+#             return f"{round(heures,2)} h"
+        
+#         jours = round(heures / 24, 2)
+#         if  jours < 7 :
+#             return f"{jours} jours"
+        
+#         semaines = round(jours / 7,2 )
+#         if semaines < 4: 
+#             return f"{semaines} semaines"
+
+#         mois = round(jours / 30 , 2)
+#         return f"{mois} mois"
+
+
+
+def ConvertionEcart(minutes):
+    if minutes is None or minutes == "":
+        return "__"
+
+    if minutes < 60:
+        return f"{minutes} min"
+
+    heures = int(minutes // 60)
+    min_restantes = int(minutes % 60)
+
+    if heures < 24:
+        return f"{heures} h {min_restantes} min"
+
+    jours = heures // 24
+    heures_restantes = heures % 24
+
+    if jours < 7:
+        return f"{jours} jours {heures_restantes} h {min_restantes} min"
+
+    semaines = jours // 7
+
+    if semaines < 4:
+        return f"{semaines} semaines"
+
+    mois = minutes / (60 * 24 * 30)
+
+    return f"{mois:.1f} mois"
+
+
+
 
 def structureEmail():
 

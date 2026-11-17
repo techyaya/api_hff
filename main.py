@@ -12,8 +12,6 @@ from contextlib import asynccontextmanager
 
 from fastapi.middleware.cors import CORSMiddleware
 
-
-
 @asynccontextmanager
 async def lifespan(app):
     demarrer_scheduler()  
@@ -21,8 +19,6 @@ async def lifespan(app):
     arreter_scheduler()   
 
 app = FastAPI(lifespan=lifespan)
-
-
 
 app.include_router(historique_router)
 app.include_router(anomalie_router)
@@ -35,7 +31,7 @@ app.include_router(statistique_router)
 # Autoriser le frontend React à communiquer avec l'API 
 app.add_middleware( 
     CORSMiddleware,
-    allow_origins=["http://localhost:5173","http://localhost:4173"],
+    allow_origins=["http://localhost:5173","http://localhost:4173","http://172.20.11.80:4173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"], 
@@ -46,9 +42,6 @@ app.add_middleware(
 def accueil():
     return {"message": "FastAPI fonctionne correctement !"}
 
-@app.get("/test")
-def test():
-    return {"statut": "OK"}
 
 
 

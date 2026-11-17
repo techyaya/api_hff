@@ -27,3 +27,5 @@ def demarrer_scheduler():
 
 def arreter_scheduler():
     scheduler.shutdown()
+
+    

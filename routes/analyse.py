@@ -20,7 +20,7 @@ def analyse():
     r.id_recuperation,
     d.type_document,
     d.numero_document,
-    c.statut_DW, 
+    c.statut_dw, 
     c.statut_intranet ,
     c.resultat ,ABS(DATEDIFF(MINUTE,GETDATE(),CAST(c.jour_dernier_maj_dw AS DATETIME) + CAST(c.heur_dernier_maj AS DATETIME))) as ecart,
     ROW_NUMBER() OVER(

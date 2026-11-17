@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
-
+from io import BytesIO
 
 def generer_excel_historique(resultats):
 
@@ -89,21 +89,31 @@ def generer_excel_historique(resultats):
         ])
 
     # Création du dossier Downloads
-    chemin = os.path.join(
-        os.path.expanduser("~"),
-        "Downloads"
-    )
+    # chemin = os.path.join(
+    #     os.path.expanduser("~"),
+    #     "Downloads"
+    # )
 
-    os.makedirs(chemin, exist_ok=True)
+    # os.makedirs(chemin, exist_ok=True)
 
     # Nom du fichier
-    nom_fichier = f"historique_{datetime.now():%Y%m%d_%H%M%S}.xlsx"
 
-    fichier = os.path.join(chemin, nom_fichier)
+   
+    # nom_fichier = f"historique_{datetime.now():%Y%m%d_%H%M%S}.xlsx"
 
-    # Enregistrement
+    # fichier = os.path.join(chemin, nom_fichier)
+
+    # # Enregistrement
+    # wb.save(fichier)
+
+    fichier = BytesIO()
     wb.save(fichier)
 
+   
+
+    fichier.seek(0)
+    print("Taille :", len(fichier.getvalue()))
+    print("Signature :", fichier.getvalue()[:4])
     print("Export Excel terminé avec succès")
 
     return fichier
