@@ -93,7 +93,7 @@ def structureEmail():
             <tr>
                 <td>{info["type_document"]}</td>
                 <td>{info["numero_document"]}</td>
-                <td>{info["statut_DW"]}</td>
+                <td>{info["statut_dw"]}</td>
                 <td>{info["statut_intranet"]}</td>
                 <td>{ConvertionEcart(info["ecart"])}</td>
                 <td>{info["resultat"]}</td>
@@ -152,12 +152,10 @@ def structureEmail():
 #         print("Erreur :", type(e).__name__, repr(e))
 
 
-
 def SendEmail(destinataire=None):
     print("Envoi d'email en cours")
 
     html = structureEmail()
-
     msg = EmailMessage()
     msg["From"] = os.getenv("expediteur")
 
@@ -184,9 +182,8 @@ def SendEmail(destinataire=None):
 
             print("Email envoyé avec succès !")
           
-
-           
-
     except (smtplib.SMTPException, OSError) as e:
         print("Erreur :", type(e).__name__, repr(e))
         raise
+
+

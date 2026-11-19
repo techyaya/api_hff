@@ -31,7 +31,7 @@ app.include_router(statistique_router)
 # Autoriser le frontend React à communiquer avec l'API 
 app.add_middleware( 
     CORSMiddleware,
-    allow_origins=["http://localhost:5173","http://localhost:4173","http://172.20.11.80:4173"],
+    allow_origins=["http://localhost:5173","http://localhost:4173","http://172.20.11.80:4173", "http://172.20.11.80:5173"],   
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"], 

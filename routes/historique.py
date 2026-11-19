@@ -196,7 +196,76 @@ def getHistoriqueControle():
                 THEN 1
                 ELSE 0
             END	
-        ) AS Ordre_mission_anomalie 
+        ) AS Ordre_mission_anomalie ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' 
+                THEN 1
+                ELSE 0
+                END	
+        ) AS Vérification_prix_magasin ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' 
+                AND c.resultat = 'conforme'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS Vérification_prix_magasin_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'Vérification prix devis magasin' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS Vérification_prix_magasin_anomalie ,
+        SUM(
+        CASE 
+            WHEN d.type_Document = 'DEVIS MAGASIN' 
+            THEN 1
+            ELSE 0
+            END	
+        ) AS devis_magasin ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEVIS MAGASIN' 
+                AND c.resultat = 'conforme'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS devis_magasin_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'DEVIS MAGASIN' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS devis_magasin_anomalie ,
+        SUM(
+        CASE 
+            WHEN d.type_Document = 'BC client magasin' 
+            THEN 1
+            ELSE 0
+            END	
+        ) AS bc_client_magasin ,
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'BC client magasin' 
+                AND c.resultat = 'conforme'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS bc_client_magasin_conforme , 
+        SUM(
+            CASE 
+                WHEN d.type_Document = 'BC client magasin' 
+                AND c.resultat = 'anomalie'  
+                THEN 1
+                ELSE 0
+            END	
+        ) AS bc_client_magasin_anomalie 
         FROM controle c 
         JOIN recuperation r ON r.id_recuperation = c.id_recuperation
         JOIN document d ON d.id_document = c. id_document 

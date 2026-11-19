@@ -38,7 +38,10 @@ def generer_excel_historique(resultats):
         ("ORDRE DE RÉPARATION", 3, "E4DFEC"),
         ("BADM", 3, "DDEBF7"),
         ("DEMANDE D'ACHAT", 3, "F4CCCC"),
-        ("ORDRE DE MISSION", 3, "C9DAF8")
+        ("ORDRE DE MISSION", 3, "C9DAF8"),
+        ("Vérification prix magasin", 3, "D9EAD3"),  # Vert pastel
+        ("Devis Magasin", 3, "FCE5CD"),              # Orange pastel
+        ("BC Client Magasin", 3, "EADCF8"),         # Violet pastel
     ]
 
     # Création des titres regroupés à partir de la colonne B
