@@ -13,9 +13,9 @@ class documenModel(BaseModel):
 class OrdreReparation(BaseModel):
     numeroOr:str
     numeroVersion:int
-    # statut_or: str
+  
 
-class verificationPrixDevisAndDevisAtelier():
+class verificationPrixDevisAndDevisAtelier(BaseModel):
     numero: str
     typedocument: str
     numeroversion : int 
@@ -41,7 +41,7 @@ rq = """
             ON d.id_document = c.id_document
     )
     UPDATE c
-    SET c.statut_intranet = dc.statut_dw
+    SET c.statut_intranet = dc.statut_dw , c.resultat = 'conforme'
     FROM controle c
     INNER JOIN doc_classer dc
         ON dc.id_document = c.id_document
@@ -73,11 +73,11 @@ select_statut = """
     SELECT statut_dw
     FROM doc_classer
     WHERE classement = 1
-        AND resultat = 'anomalie'
+        AND resultat = 'conforme'
         AND numero_document = ?;
 """
 
-router.put("/updatedit")
+@router.put("/updatedit")
 def update_dit(data: documenModel):
 
     # Recherche de l'identifiant du statut
@@ -90,7 +90,7 @@ def update_dit(data: documenModel):
     # Mise à jour de l'intranet
     sql = """
     UPDATE di
-    SET di.statut_Demande = ?
+    SET di.ID_statut_Demande = ?
     FROM demande_intervention di
     WHERE di.numero_demande_dit = ?;
     """
@@ -127,17 +127,20 @@ def update_dit(data: documenModel):
         # 5. Validation
         conn.commit()
 
-        return {"message": "Mise à jour effectuée avec succès"}
+        return {
+            "success": True,
+            "message": f"Mise à jour effectuée avec succès {data.numero} "}
 
     except Exception as e:
         conn.rollback()
+        print("ERREUR SQL :", repr(e))
         raise e
 
     finally:
         cursor.close()
         conn.close()
 
-router.put("/updateOrdreRéparation")
+@router.put("/updateOrdreReparation")
 def update_ors_soumis_a_validation(data: OrdreReparation):
 
     sql = """
@@ -156,13 +159,27 @@ def update_ors_soumis_a_validation(data: OrdreReparation):
         # 1. Mise à jour du contrôle
         cursor.execute(rq, data.numeroOr)
 
+        cursor.execute(select_statut, data.numeroOr)
+        resultat = cursor.fetchone()
+
+        if not resultat:
+            raise Exception("Statut DW introuvable")
+
+        statut_dw = resultat[0]
+
+        print(statut_dw , "  ", data.numeroOr , " " , data.numeroVersion)
         # 2. Mise à jour de l'intranet
-        cursor.execute(sql, data.statut_or,data.numeroOr,data.numeroVersion)
+        cursor.execute(sql, statut_dw , data.numeroOr , data.numeroVersion)
+
+        print("Nombre de lignes modifiées :", cursor.rowcount)
+        print("Statut envoyé :", statut_dw)
 
         # 3. Validation des deux mises à jour
         conn.commit()
 
-        return {"message": "Mise à jour effectuée avec succès Ordre de réparation"}
+        return {
+            "success": True,
+            "message": f"Mise à jour effectuée avec succès Ordre de réparation {data.numeroOr} "}
 
     except Exception as e:
 
@@ -175,7 +192,7 @@ def update_ors_soumis_a_validation(data: OrdreReparation):
         if conn:
             conn.close()
 
-router.put("/updateDemandeAchat")
+@router.put("/updateDemandeAchat")
 def update_demande_achat(data: documenModel):
     conn = None
     try:
@@ -183,7 +200,7 @@ def update_demande_achat(data: documenModel):
         cursor = conn.cursor()
 
         # 1. Mettre à jour le dernier contrôle anomalie
-        cursor.execute(rq, (data.numero,))
+        cursor.execute(rq, data.numero)
 
         # 2. Récupérer le statut DocuWare
         cursor.execute(select_statut, data.numero)
@@ -207,6 +224,7 @@ def update_demande_achat(data: documenModel):
         conn.commit()
 
         return {
+            "success": True,
             "message": "Demande d'achat mise à jour avec succès",
             "numero": data.numero
         }
@@ -220,7 +238,7 @@ def update_demande_achat(data: documenModel):
         if conn:
             conn.close()
 
-router.put("/updateBADM")
+@router.put("/updateBADM")
 def update_BADM(data: documenModel):
 
     recherche_id = """
@@ -228,7 +246,6 @@ def update_BADM(data: documenModel):
         FROM Statut_demande
         WHERE Description = ? AND Code_Application = 'BDM';
     """
-
     sql = """
         UPDATE dmm
         SET ID_Statut_Demande = ?
@@ -272,7 +289,10 @@ def update_BADM(data: documenModel):
         # 5. Validation de la transaction
         conn.commit()
 
-        return {"message": "Mise à jour effectuée avec succès BADM"}
+        return {
+            "success": True,
+            "message": "Mise à jour effectuée avec succès BADM"
+            }
 
     except Exception as e:
         if conn:
@@ -284,7 +304,7 @@ def update_BADM(data: documenModel):
         if conn:
             conn.close()
 
-router.put("/verificationprixdevisatelier")
+@router.put("/verificationprixdevisatelier")
 def update_verif_prix_and_devisAtelier(data: verificationPrixDevisAndDevisAtelier):
 
     sql = """
@@ -313,7 +333,12 @@ def update_verif_prix_and_devisAtelier(data: verificationPrixDevisAndDevisAtelie
         statut_dw = resultat[0]
 
         # 3. Mise à jour du devis dans l'intranet
+        print(statut_dw, "   " , data.typedocument , "  ", data.numero , " " , data.numeroversion)
         cursor.execute(sql, statut_dw, data.typedocument, data.numero,data.numeroversion)
+
+        print("Nombre de lignes modifiées :", cursor.rowcount)
+        print("Statut envoyé :", statut_dw)
+        
 
         if cursor.rowcount == 0:
             raise Exception("Aucun devis correspondant trouvé dans l'intranet")
@@ -322,7 +347,8 @@ def update_verif_prix_and_devisAtelier(data: verificationPrixDevisAndDevisAtelie
         conn.commit()
 
         return {
-            "message": "Mise à jour effectuée avec succès (Devis)"
+            "success": True,
+            "message": "Mise à jour effectuée avec succès (Devis) atelier"
         }
 
     except Exception as e:
@@ -337,7 +363,7 @@ def update_verif_prix_and_devisAtelier(data: verificationPrixDevisAndDevisAtelie
         if conn:
             conn.close()
 
-router.put("/verificationprixmagasin")
+@router.put("/verificationprixmagasin")
 def update_verification_prix_magasin(data: documenModel):
 
     sql_informix = """
@@ -381,6 +407,7 @@ def update_verification_prix_magasin(data: documenModel):
         conn_sql.commit()
 
         return {
+            "success": True,
             "message": "Mise à jour effectuée avec succès devis magasin "
         }
 
@@ -403,7 +430,7 @@ def update_verification_prix_magasin(data: documenModel):
         if conn_informix:
             conn_informix.close()
 
-router.put("/updateOrdreDeMission")
+@router.put("/updateOrdreDeMission")
 def update_ordreMission(data: documenModel):
     recherche_id = """
         SELECT ID_Statut_Demande
@@ -455,6 +482,7 @@ def update_ordreMission(data: documenModel):
         conn.commit()
 
         return {
+            "success": True,
             "message": "Mise à jour effectuée avec succès (Ordre de mission)"
         }
 
@@ -468,7 +496,7 @@ def update_ordreMission(data: documenModel):
         if conn:
             conn.close()
 
-router.put("/devisMagasin")
+@router.put("/devisMagasin")
 def update_devis_magasin(data: documenModel):
 
     sql_informix = """
@@ -511,6 +539,7 @@ def update_devis_magasin(data: documenModel):
         conn_sql.commit()
 
         return {
+            "success": True,
             "message": "Mise à jour effectuée avec succès (Devis magasin)"
         }
 
@@ -531,3 +560,11 @@ def update_devis_magasin(data: documenModel):
 
         if conn_informix:
             conn_informix.close()
+
+
+
+
+print("NOMBRE DE ROUTES :", len(router.routes))
+
+for route in router.routes:
+    print(route.path, route.methods)

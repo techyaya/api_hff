@@ -22,4 +22,19 @@ def get_connection():
     #print("password: " , os.getenv("password"))
 
 
+    return pyodbc.connect(connection_string) 
+
+
+def get_connection_informix():
+    connection_string = (
+        "DRIVER={IBM INFORMIX ODBC DRIVER (64-bit)};"
+        f"HOST={os.getenv("host_informix")};"
+        f"SERVICE={os.getenv("service")};"
+        f"SERVER={os.getenv("server_informix")};"
+        "PROTOCOL=onsoctcp;"
+        f"DATABASE={os.getenv("database_informix")};"
+        f"UID={os.getenv("user_informix")};"
+        f"PWD={os.getenv("pwd_informix")};"
+    )
+   
     return pyodbc.connect(connection_string)

@@ -112,7 +112,6 @@ def generer_excel_historique(resultats):
     fichier = BytesIO()
     wb.save(fichier)
 
-   
 
     fichier.seek(0)
     print("Taille :", len(fichier.getvalue()))

@@ -7,7 +7,7 @@ from routes.analyse import router as analyse_router
 from routes.consultation import router as consultation_router
 from routes.email import router as email_router
 from routes.statitistiques import router as statistique_router
-
+from routes.synchronisation import router as synchronisation_router
 from contextlib import asynccontextmanager
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,6 +27,7 @@ app.include_router(analyse_router)
 app.include_router(consultation_router)
 app.include_router(email_router)
 app.include_router(statistique_router)
+app.include_router(synchronisation_router)
 
 # Autoriser le frontend React à communiquer avec l'API 
 app.add_middleware( 
@@ -40,7 +41,20 @@ app.add_middleware(
 
 @app.get("/")
 def accueil():
-    return {"message": "FastAPI fonctionne correctement !"}
+    routes_put = []
+
+    for route in app.routes:
+        if hasattr(route, "methods") and "PUT" in route.methods:
+            routes_put.append({
+                "chemin": route.path,
+                "methodes": list(route.methods)
+            })
+
+    return {
+        "message": "FastAPI fonctionne correctement !",
+        "routes_put": routes_put,
+        "nombre_routes_put": len(routes_put)
+    }
 
 
 
